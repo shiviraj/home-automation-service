@@ -1,7 +1,7 @@
-export type ErrorMessage = { errorMessage: string }
-
-const getFormat = (num: number, length: number = 2): string => num.toString().padStart(length, '0')
 export type Log = { message: string, data?: any }
+export type ErrorLog = { errorCode: string, errorMessage: string, data?: any, details?: any }
+
+const getFormat = (num: number, length: number = 2): string => String(num).padStart(length, '0')
 
 const getTimezone = (offset: number) => {
     const t1 = Math.abs(offset / 60)
@@ -24,18 +24,6 @@ const getTimestamp = (): string => {
 }
 
 const logger = {
-    errorResponse(customError: ErrorMessage) {
-        try {
-            const timestamp = getTimestamp()
-            console.log(JSON.stringify({
-                timestamp,
-                level: 'ERROR',
-                details: {customError}
-            }))
-        } catch (newError) {
-            console.log(newError, 'Error while logging ERROR log')
-        }
-    },
     info(log: Log) {
         console.log(JSON.stringify({
             timestamp: getTimestamp(),
@@ -43,11 +31,11 @@ const logger = {
             details: log
         }))
     },
-    error(log: Log) {
+    error(log: ErrorLog) {
         console.log(JSON.stringify({
             timestamp: getTimestamp(),
             level: "ERROR",
-            details: log
+            ...log
         }))
     }
 }

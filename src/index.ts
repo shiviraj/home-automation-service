@@ -1,6 +1,6 @@
 import app from "./app"
 
-const port = process.env.PORT || 8080
+const port = 8080
 
 app.listen(port, () => console.log(`home-automation-service is up on ${port}`))
 

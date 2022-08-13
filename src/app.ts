@@ -5,7 +5,8 @@ import router from "./router";
 
 const url = process.env.DB_URL!
 const dbName = process.env.DB_NAME!
-const client: PiClient = new PiClient(url)
+const client = new PiClient(url)
+client.connect().then()
 const db = client.db(dbName)
 
 const app = express()
@@ -33,7 +34,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next()
 })
 
-app.use("/api", router)
+app.use(router)
 
 app.use((_req: Request, res: Response) => {
     res.status(404).send({message: "invalid request"})
