@@ -1,8 +1,19 @@
-import {Collection, Document} from "raspberrypi-db/lib/pi/collection";
+import DeviceRepository from "../repository/deviceRepository";
+import Device from "../domain/Device";
+
+const deviceRepository = new DeviceRepository()
 
 const DeviceService = {
-    getAllDevice(collection: Collection): Promise<Array<Document>> {
-        return collection.find({})
+    getAllDevice(): Promise<Array<Device>> {
+        return deviceRepository.find({})
+    },
+
+    updateState(device: Device, value: number): Promise<Device> {
+        return deviceRepository.findById(device._id!)
+            .then((device: Device) => {
+                const updatedDevice = device.updateValue(value)
+                return deviceRepository.update(updatedDevice)
+            })
     }
 }
 

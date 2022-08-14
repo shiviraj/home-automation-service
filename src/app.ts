@@ -1,24 +1,13 @@
 import express, {NextFunction, Request, Response} from "express"
-import {PiClient} from "raspberrypi-db"
 import logger from "./logger/logger";
 import router from "./router";
-
-const url = process.env.DB_URL!
-const dbName = process.env.DB_NAME!
-const client = new PiClient(url)
-client.connect().then()
-const db = client.db(dbName)
+import "./db/connect"
 
 const app = express()
 app.use(express.json())
 
 app.get("/", (_req: Request, res: Response) => {
     res.send({message: "Hello! you have just arrived at home-automation-server"})
-})
-
-app.use((_req: Request, res: Response, next: NextFunction) => {
-    res.locals.db = db
-    next()
 })
 
 app.use((req: Request, res: Response, next: NextFunction) => {
