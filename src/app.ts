@@ -1,7 +1,6 @@
 import express, {NextFunction, Request, Response} from "express"
 import logger from "./logger/logger";
 import router from "./router";
-import "./db/connect"
 
 const app = express()
 app.use(express.json())

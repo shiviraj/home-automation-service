@@ -6,9 +6,6 @@ class DeviceRepository {
     private collectionName = "devices"
     private collection: Collection = db.collection(this.collectionName)
 
-    constructor() {
-    }
-
     find(param: Record<string, any>): Promise<Array<Device>> {
         return this.collection.find(param) as Promise<Array<Device>>
     }
