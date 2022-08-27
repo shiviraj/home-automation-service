@@ -14,6 +14,9 @@ const DeviceService = {
                 const updatedDevice = device.updateValue(value)
                 return deviceRepository.update(updatedDevice)
             })
+    },
+    getDevice(node: string) {
+        return deviceRepository.find({node})
     }
 }
 

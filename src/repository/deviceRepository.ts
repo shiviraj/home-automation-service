@@ -7,7 +7,8 @@ class DeviceRepository {
     private collection: Collection = db.collection(this.collectionName)
 
     find(param: Record<string, any>): Promise<Array<Device>> {
-        return this.collection.find(param) as Promise<Array<Device>>
+        return this.collection.find(param)
+            .then(devices => devices.map(device => Object.assign(new Device(), device)))
     }
 
     findById(id: string): Promise<Device> {

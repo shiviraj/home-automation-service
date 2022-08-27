@@ -1,6 +1,9 @@
 import express, {NextFunction, Request, Response} from "express"
-import logger from "./logger/logger";
+import logger, {ErrorLog} from "./logger/logger";
 import router from "./router";
+import TokenService from "./service/tokenService";
+import HAErrors from "./error/HAErrors";
+import UserService from "./service/userService";
 
 const app = express()
 app.use(express.json())
@@ -20,6 +23,29 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         return send.call(this, data)
     }
     next()
+})
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (req.url === "/users/login") {
+            return next()
+        }
+
+        const token: [boolean, string] = TokenService.validate(req.headers.authorization || "")
+        if (!token[0]) {
+            logger.error({...HAErrors.HA8004 as ErrorLog})
+            res.status(401).send(HAErrors.HA8004)
+            return
+        }
+
+        if (token[1] !== "INTERNAL_USER") {
+            res.locals.user = await UserService.findUserBy(token[1])
+        }
+        next()
+    } catch (e) {
+        logger.error({...HAErrors.HA8004 as ErrorLog})
+        res.status(401).send(HAErrors.HA8004)
+    }
 })
 
 app.use(router)
