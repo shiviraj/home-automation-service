@@ -3,7 +3,8 @@ const HAErrors = {
     HA8002: {errorCode: "HA-8002", errorMessage: "Failed to update state of device"},
     HA8003: {errorCode: "HA-8003", errorMessage: "Failed to authorized user"},
     HA8004: {errorCode: "HA-8004", errorMessage: "unauthorized user"},
-    HA8005: {errorCode: "HA-8005", errorMessage: "Failed to get pin mapping of node"}
+    HA8005: {errorCode: "HA-8005", errorMessage: "Failed to get pin mapping of node"},
+    HA8006: {errorCode: "HA-8006", errorMessage: "Failed to update device input value"}
 }
 
 export default HAErrors

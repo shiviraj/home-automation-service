@@ -14,7 +14,6 @@ deviceController.get("", (_req: Request, res: Response) => {
         })
 })
 
-
 deviceController.get("/:node", (req: Request, res: Response) => {
     DeviceService.getDevice(req.params.node)
         .then((data) => res.send(data))
@@ -33,5 +32,13 @@ deviceController.put("", (req: Request, res: Response) => {
         })
 })
 
+deviceController.put("/:id", (req: Request, res: Response) => {
+    DeviceService.updateInputState(req.params.id, req.body.state)
+        .then((data) => res.send(data))
+        .catch((err) => {
+            logger.error({...HAErrors.HA8006 as ErrorLog, details: err})
+            res.status(500).send(HAErrors.HA8006)
+        })
+})
 
 export default deviceController

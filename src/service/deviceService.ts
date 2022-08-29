@@ -15,8 +15,16 @@ const DeviceService = {
                 return deviceRepository.update(updatedDevice)
             })
     },
+
     getDevice(node: string) {
         return deviceRepository.find({node})
+    },
+
+    updateInputState(deviceId: string, state: number) {
+        return deviceRepository.findById(deviceId)
+            .then((device: Device) => {
+                return deviceRepository.update(device.updateValue(state));
+            })
     }
 }
 

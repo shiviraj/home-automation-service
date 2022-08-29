@@ -25,6 +25,11 @@ class DeviceRepository {
     update(updatedDevice: Device) {
         return this.collection.updateById(updatedDevice._id!, updatedDevice) as Promise<Device>
     }
+
+    findOne(param: Record<string, any>): Promise<Device> {
+        return this.collection.findOne(param)
+            .then(device => Object.assign(new Device(), device))
+    }
 }
 
 export default DeviceRepository
