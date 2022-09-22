@@ -5,8 +5,9 @@ class Device {
     readonly number: number = 0
     readonly nodeMcu: string = ""
     readonly pin: number = 0
-    readonly type: string = ""
-    readonly mode: string = ""
+    readonly type: "ANALOG" | "DIGITAL" = "ANALOG"
+    readonly mode: "INPUT" | "OUTPUT" = "INPUT"
+    readonly logic: "DIRECT" | "INDIRECT" = "DIRECT"
     value: number = 0
 
     updateValue(value: number): Device {
