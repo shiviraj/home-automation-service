@@ -1,34 +1,15 @@
-import {db} from "../db/connect";
 import Device from "../domain/Device";
-import {Collection} from "raspberrypi-db/lib/pi/collection";
+import Repository from "./repository";
 
-class DeviceRepository {
-    private collectionName = "devices"
-    private collection: Collection = db.collection(this.collectionName)
+const collectionName = "devices"
 
-    find(param: Record<string, any>): Promise<Array<Device>> {
-        return this.collection.find(param)
-            .then(devices => devices.map(device => Object.assign(new Device(), device)))
+class DeviceRepository extends Repository<Device> {
+    constructor() {
+        super(collectionName);
     }
 
-    findById(id: string): Promise<Device> {
-        return this.collection.findById(id)
-            .then(data => {
-                if (data === null) {
-                    return Promise.reject<Device>()
-                }
-                return Object.assign(new Device(), data)
-            })
-
-    }
-
-    update(updatedDevice: Device) {
-        return this.collection.updateById(updatedDevice._id!, updatedDevice) as Promise<Device>
-    }
-
-    findOne(param: Record<string, any>): Promise<Device> {
-        return this.collection.findOne(param)
-            .then(device => Object.assign(new Device(), device))
+    deserialize(item: Document | null): Device {
+        return Object.assign(new Device(), item)
     }
 }
 

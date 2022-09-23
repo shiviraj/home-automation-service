@@ -1,10 +1,14 @@
 import {db} from "../db/connect";
-import {Collection} from "raspberrypi-db/lib/pi/collection";
+import {Collection, Document} from "raspberrypi-db/lib/pi/collection";
 
-class Repository<S extends { _id: string | null }> {
+export interface RepositoryItem<T> {
+    _id?: T | null
+}
+
+abstract class Repository<S extends RepositoryItem<string>> {
     protected collection: Collection;
 
-    constructor(collectionName: string) {
+    protected constructor(collectionName: string) {
         this.collection = db.collection(collectionName)
     }
 
@@ -17,13 +21,17 @@ class Repository<S extends { _id: string | null }> {
             .then((item) => item ? item : Promise.reject(null)) as Promise<S>
     }
 
+    findById(id: string) {
+        return this.collection.findById(id).then(this.deserialize)
+    }
+
     exists(param: Record<string, any>): Promise<boolean> {
         return this.find(param)
             .then((items: Array<S>) => items.length > 0)
     }
 
     save(item: S): Promise<S> {
-        if (item._id === null) {
+        if (!item._id) {
             return this.insertOne(item)
         }
         return this.exists({_id: item._id})
@@ -39,6 +47,8 @@ class Repository<S extends { _id: string | null }> {
     private update(item: S): Promise<S> {
         return this.collection.updateById(item._id!, item) as Promise<S>
     }
+
+    abstract deserialize(item: Document | null): S
 }
 
 export default Repository

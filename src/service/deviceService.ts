@@ -1,29 +1,32 @@
 import DeviceRepository from "../repository/deviceRepository";
 import Device from "../domain/Device";
 
-const deviceRepository = new DeviceRepository()
+class DeviceService {
+    private readonly deviceRepository: DeviceRepository;
 
-const DeviceService = {
+    constructor() {
+        this.deviceRepository = new DeviceRepository()
+    }
+
     getAllDevice(): Promise<Array<Device>> {
-        return deviceRepository.find({})
-    },
+        return this.deviceRepository.find({})
+    }
 
     updateState(device: Device, value: number): Promise<Device> {
-        return deviceRepository.findById(device._id!)
+        return this.deviceRepository.findById(device._id!)
             .then((device: Device) => {
-                const updatedDevice = device.updateValue(value)
-                return deviceRepository.update(updatedDevice)
+                return this.deviceRepository.save(device.updateState(value))
             })
-    },
+    }
 
     getDevice(node: string) {
-        return deviceRepository.find({node})
-    },
+        return this.deviceRepository.find({node})
+    }
 
     updateInputState(deviceId: string, state: number) {
-        return deviceRepository.findById(deviceId)
+        return this.deviceRepository.findById(deviceId)
             .then((device: Device) => {
-                return deviceRepository.update(device.updateValue(state));
+                return this.deviceRepository.save(device.updateInputValue(state));
             })
     }
 }

@@ -5,9 +5,10 @@ import UserService from "../service/userService";
 import User, {Role} from "../domain/User";
 
 const userController = express.Router()
+const userService = new UserService()
 
 userController.post("/login", (req: Request, res: Response) => {
-    UserService.login(req.body.username, req.body.password)
+    userService.login(req.body.username, req.body.password)
         .then((data) => res.send({token: data}))
         .catch((err) => {
             logger.error({...HAErrors.HA8003 as ErrorLog, details: err})
@@ -20,7 +21,7 @@ userController.get("/validate", (_req: Request, res: Response) => {
 })
 
 userController.put("/update-password", (req: Request, res: Response) => {
-    UserService.updatePassword(req.body, res.locals.user as User)
+    userService.updatePassword(req.body, res.locals.user as User)
         .then(data => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8011, details: err})
@@ -29,7 +30,7 @@ userController.put("/update-password", (req: Request, res: Response) => {
 })
 
 userController.put("", (req: Request, res: Response) => {
-    UserService.updateProfile(req.body, res.locals.user as User)
+    userService.updateProfile(req.body, res.locals.user as User)
         .then(data => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8012, details: err})
@@ -46,7 +47,7 @@ userController.use((_req: Request, res: Response, next: NextFunction) => {
 })
 
 userController.get("", (_req: Request, res: Response) => {
-    UserService.getAllUsers()
+    userService.getAllUsers()
         .then(data => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8010, details: err})
@@ -55,7 +56,7 @@ userController.get("", (_req: Request, res: Response) => {
 })
 
 userController.post("", (req: Request, res: Response) => {
-    UserService.addUser(req.body)
+    userService.addUser(req.body)
         .then(data => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8009, details: err})
@@ -64,7 +65,7 @@ userController.post("", (req: Request, res: Response) => {
 })
 
 userController.post("/username-available", (req: Request, res: Response) => {
-    UserService.isUsernameAvailable(req.body)
+    userService.isUsernameAvailable(req.body)
         .then(data => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8008, details: err})

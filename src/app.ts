@@ -5,6 +5,8 @@ import TokenService from "./service/tokenService";
 import HAErrors from "./error/HAErrors";
 import UserService from "./service/userService";
 
+const userService = new UserService()
+
 const app = express()
 app.use(express.json())
 
@@ -39,7 +41,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
         }
 
         if (token[1] !== "INTERNAL_USER") {
-            res.locals.user = await UserService.findUserBy(token[1])
+            res.locals.user = await userService.findUserBy(token[1])
         }
         next()
     } catch (e) {

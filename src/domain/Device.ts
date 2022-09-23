@@ -8,10 +8,17 @@ class Device {
     readonly type: "ANALOG" | "DIGITAL" = "ANALOG"
     readonly mode: "INPUT" | "OUTPUT" = "INPUT"
     readonly logic: "DIRECT" | "INDIRECT" = "DIRECT"
+    readonly control: "ENABLED" | "DISABLED" = "DISABLED"
     value: number = 0
 
-    updateValue(value: number): Device {
+    updateInputValue(value: number): Device {
         this.value = value
+        return this
+    }
+
+    updateState(value: number): Device {
+        if (this.mode === "OUTPUT" && this.control === "ENABLED")
+            this.value = value
         return this
     }
 }

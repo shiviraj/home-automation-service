@@ -4,9 +4,10 @@ import logger, {ErrorLog} from "../logger/logger";
 import HAErrors from "../error/HAErrors";
 
 const deviceController = express.Router()
+const deviceService = new DeviceService()
 
 deviceController.get("", (_req: Request, res: Response) => {
-    DeviceService.getAllDevice()
+    deviceService.getAllDevice()
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8001 as ErrorLog, details: err})
@@ -15,7 +16,7 @@ deviceController.get("", (_req: Request, res: Response) => {
 })
 
 deviceController.get("/:node", (req: Request, res: Response) => {
-    DeviceService.getDevice(req.params.node)
+    deviceService.getDevice(req.params.node)
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8001 as ErrorLog, details: err})
@@ -24,7 +25,7 @@ deviceController.get("/:node", (req: Request, res: Response) => {
 })
 
 deviceController.put("", (req: Request, res: Response) => {
-    DeviceService.updateState(req.body.device, req.body.state)
+    deviceService.updateState(req.body.device, req.body.state)
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8002 as ErrorLog, details: err})
@@ -33,7 +34,7 @@ deviceController.put("", (req: Request, res: Response) => {
 })
 
 deviceController.put("/:id", (req: Request, res: Response) => {
-    DeviceService.updateInputState(req.params.id, req.body.state)
+    deviceService.updateInputState(req.params.id, req.body.state)
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8006 as ErrorLog, details: err})
