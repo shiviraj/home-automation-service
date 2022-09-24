@@ -6,11 +6,7 @@ const collectionName = "users"
 
 class UserRepository extends Repository<User> {
     constructor() {
-        super(collectionName);
-    }
-
-    deserialize(item: Document | null): User {
-        return Object.assign(new User(), item)
+        super(collectionName, User);
     }
 }
 

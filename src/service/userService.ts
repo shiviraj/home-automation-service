@@ -42,13 +42,15 @@ class UserService {
 
     login(username: string, password: string): Promise<string> {
         return this.userRepository.findOne({username})
-            .then(async (user: User) => {
+            .then(async (user: User | null) => {
+                if (user === null) {
+                    return Promise.reject<string>()
+                }
                 const match = await bcrypt.compare(password, user.password)
                 if (match) {
                     return TokenService.create(user)
-                } else {
-                    return Promise.reject<string>()
                 }
+                return Promise.reject<string>()
             })
     }
 

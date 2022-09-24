@@ -14,16 +14,16 @@ class DeviceService {
 
     updateState(device: Device, value: number): Promise<Device> {
         return this.deviceRepository.findById(device._id!)
-            .then((device: Device) => {
+            .then((device) => {
                 return this.deviceRepository.save(device.updateState(value))
             })
     }
 
-    getDevice(node: string) {
+    getDevice(node: string): Promise<Array<Device>> {
         return this.deviceRepository.find({node})
     }
 
-    updateInputState(deviceId: string, state: number) {
+    updateInputState(deviceId: string, state: number): Promise<Device> {
         return this.deviceRepository.findById(deviceId)
             .then((device: Device) => {
                 return this.deviceRepository.save(device.updateInputValue(state));

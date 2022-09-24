@@ -1,54 +1,62 @@
 import {db} from "../db/connect";
-import {Collection, Document} from "raspberrypi-db/lib/pi/collection";
+import {Collection} from "raspberrypi-db/lib/pi/collection";
 
-export interface RepositoryItem<T> {
-    _id?: T | null
+interface RepositoryItem {
+    _id?: string | null
 }
 
-abstract class Repository<S extends RepositoryItem<string>> {
-    protected collection: Collection;
+class Repository<T extends RepositoryItem> {
+    protected collection: Collection<T>;
+    private readonly type: { new(): T };
 
-    protected constructor(collectionName: string) {
-        this.collection = db.collection(collectionName)
+    constructor(collectionName: string, t: new () => T) {
+        this.collection = db.collection<T>(collectionName)
+        this.type = t
     }
 
-    find(param: Record<string, any>): Promise<Array<S>> {
-        return this.collection.find(param) as Promise<Array<S>>
+    find(param: Record<string, any>): Promise<Array<T>> {
+        return this.collection.find(param)
     }
 
-    findOne(param: Record<string, any>): Promise<S> {
+    findOne(param: Record<string, any>): Promise<T | null> {
         return this.collection.findOne(param)
-            .then((item) => item ? item : Promise.reject(null)) as Promise<S>
+            .then((item) => item ? item : Promise.reject(null))
     }
 
-    findById(id: string) {
-        return this.collection.findById(id).then(this.deserialize)
+    findById(id: string): Promise<T> {
+        return this.collection.findById(id)
+            .then((item) => {
+                if (item === null) {
+                    return Promise.reject<T>("No such item exists")
+                }
+                return Object.assign(new this.type(), item)
+            })
     }
 
     exists(param: Record<string, any>): Promise<boolean> {
         return this.find(param)
-            .then((items: Array<S>) => items.length > 0)
+            .then((items: Array<T>) => items.length > 0)
     }
 
-    save(item: S): Promise<S> {
+    save(item: T): Promise<T> {
         if (!item._id) {
             return this.insertOne(item)
         }
-        return this.exists({_id: item._id})
-            .then((exist) => {
-                return exist ? this.update(item) : this.insertOne(item)
+        return this.update(item)
+            .then((result) => {
+                if (result === null)
+                    return this.insertOne(item)
+                return result
             })
     }
 
-    private insertOne(item: S): Promise<S> {
-        return this.collection.insertOne(item) as Promise<S>
+    private insertOne(item: T): Promise<T> {
+        return this.collection.insertOne(item)
     }
 
-    private update(item: S): Promise<S> {
-        return this.collection.updateById(item._id!, item) as Promise<S>
+    private update(item: T): Promise<T | null> {
+        return this.collection.updateById(item._id!, item)
     }
-
-    abstract deserialize(item: Document | null): S
 }
 
 export default Repository
