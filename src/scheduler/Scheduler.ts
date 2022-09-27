@@ -1,20 +1,21 @@
 import RoutineService from "../service/routine/RoutineService";
 import VariableService from "../service/VariableService";
+import CronScheduler from "./CronScheduler";
 
-class Scheduler {
+class Scheduler extends CronScheduler {
     private readonly routineService: RoutineService;
     private variableService: VariableService;
     private SUN_SET: string = "18:06";
     private SUN_RISE: string = "05:55";
 
     constructor() {
+        super();
         this.routineService = new RoutineService()
         this.variableService = new VariableService()
-        // this.init()
+        this.init()
     }
 
     start() {
-        this.init()
         const time = this.getTime()
         return this.routineService.executeScheduled(time)
     }
