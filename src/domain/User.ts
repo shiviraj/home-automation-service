@@ -4,19 +4,19 @@ export enum Role {
 }
 
 class User {
-    readonly _id: string | null = null
+    readonly _id?: string | null = null
     username: string
     name: string
     email: string
     password: string
     readonly role: Role
 
-    constructor(username: string = "", name: string = "", email: string = "", password: string = "", role: Role = Role.USER) {
-        this.username = username
-        this.name = name
-        this.email = email
-        this.password = password
-        this.role = role
+    constructor(user: User) {
+        this.username = user.username
+        this.name = user.name
+        this.email = user.email
+        this.password = user.password
+        this.role = user.role
     }
 
     updatePassword(password: string): User {

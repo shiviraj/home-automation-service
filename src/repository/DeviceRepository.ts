@@ -1,5 +1,5 @@
 import Device from "../domain/Device";
-import Repository from "./repository";
+import Repository from "./Repository";
 
 const collectionName = "devices"
 

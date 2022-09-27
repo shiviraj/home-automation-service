@@ -1,24 +1,22 @@
 import {db} from "../db/connect";
 import {Collection} from "raspberrypi-db/lib/pi/collection";
-
-interface RepositoryItem {
-    _id?: string | null
-}
+import RepositoryItem from "./RepositoryItem";
 
 class Repository<T extends RepositoryItem> {
     protected collection: Collection<T>;
-    private readonly type: { new(): T };
+    private readonly type: { new(item: T): T };
 
-    constructor(collectionName: string, t: new () => T) {
+    constructor(collectionName: string, t: new (item: T) => T) {
         this.collection = db.collection<T>(collectionName)
         this.type = t
     }
 
     find(param: Record<string, any>): Promise<Array<T>> {
         return this.collection.find(param)
+            .then((items) => items.map((item) => new this.type(item)))
     }
 
-    findOne(param: Record<string, any>): Promise<T | null> {
+    findOne(param: Record<string, any>): Promise<T> {
         return this.collection.findOne(param)
             .then((item) => item ? item : Promise.reject(null))
     }
@@ -29,7 +27,7 @@ class Repository<T extends RepositoryItem> {
                 if (item === null) {
                     return Promise.reject<T>("No such item exists")
                 }
-                return Object.assign(new this.type(), item)
+                return new this.type(item)
             })
     }
 

@@ -1,6 +1,5 @@
 import User from "../domain/User";
-import Repository from "./repository";
-
+import Repository from "./Repository";
 
 const collectionName = "users"
 

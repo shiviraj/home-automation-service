@@ -1,4 +1,4 @@
-import UserRepository from "../repository/userRepository";
+import UserRepository from "../repository/UserRepository";
 import bcrypt from "bcryptjs"
 import User, {Role} from "../domain/User";
 import {randomUUID} from "crypto";
@@ -17,26 +17,13 @@ class UserService {
         this.initUser()
     }
 
-    private initUser() {
-        this.userRepository.find({})
-            .then(async (users: Array<User>) => {
-                if (users.length === 0) {
-                    const password = randomUUID()
-                    this.addUser({
-                        username: "admin",
-                        name: "Admin",
-                        email: "admin@mail.com",
-                        password,
-                        role: Role.ADMIN
-                    })
-                        .then((user: User) => {
-                            logger.info({message: `Default username '${user.username}' and password '${password}'`});
-                            const payload = JSON.stringify(new Token("INTERNAL_USER", new Date(), new Date(new Date().setFullYear(new Date().getFullYear() + 100))));
-                            const token = jwt.sign(payload, SECRET_KEY)
-                            logger.info({message: `default INTERNAL TOKEN: ${token}`})
-                        })
-
+    addUser(user: User): Promise<User> {
+        return this.isUsernameAvailable(user)
+            .then(({status}) => {
+                if (status) {
+                    return this.addNewUser(user)
                 }
+                return Promise.reject(HAErrors.HA8009)
             })
     }
 
@@ -67,19 +54,32 @@ class UserService {
             .then((status: boolean) => ({status: !status}))
     }
 
-    addUser(user: { name: string, username: string, email: string, password: string, role: Role }): Promise<User> {
-        return this.isUsernameAvailable(user)
-            .then(({status}) => {
-                if (status) {
-                    return this.addNewUser(user)
+    private initUser() {
+        this.userRepository.exists({})
+            .then(async (isExist) => {
+                if (!isExist) {
+                    const password = randomUUID()
+                    this.addUser({
+                        username: "admin",
+                        name: "Admin",
+                        email: "admin@mail.com",
+                        password,
+                        role: Role.ADMIN
+                    } as User)
+                        .then((user: User) => {
+                            logger.info({message: `Default username '${user.username}' and password '${password}'`});
+                            const payload = JSON.stringify(new Token("INTERNAL_USER", new Date(), new Date(new Date().setFullYear(new Date().getFullYear() + 100))));
+                            const token = jwt.sign(payload, SECRET_KEY)
+                            logger.info({message: `default INTERNAL TOKEN: ${token}`})
+                        })
+
                 }
-                return Promise.reject(HAErrors.HA8009)
             })
     }
 
-    private async addNewUser(userDetails: { username: string, email: string, password: string, name: string, role: Role }): Promise<User> {
+    private async addNewUser(userDetails: User): Promise<User> {
         const password = await bcrypt.hash(userDetails.password, SALT_ROUND)
-        const user = new User(userDetails.username, userDetails.name, userDetails.email, password, userDetails.role)
+        const user = new User(Object.assign(userDetails, {password}))
         return this.userRepository.save(user)
     }
 

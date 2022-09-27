@@ -1,10 +1,12 @@
 import express, {Request, Response} from "express";
-import DeviceService from "../service/deviceService";
+import DeviceService from "../service/DeviceService";
 import logger, {ErrorLog} from "../logger/logger";
 import HAErrors from "../error/HAErrors";
+import RoutineService from "../service/routine/RoutineService";
 
 const deviceController = express.Router()
 const deviceService = new DeviceService()
+const routineService = new RoutineService()
 
 deviceController.get("", (_req: Request, res: Response) => {
     deviceService.getAllDevice()
@@ -25,7 +27,7 @@ deviceController.get("/:node", (req: Request, res: Response) => {
 })
 
 deviceController.put("", (req: Request, res: Response) => {
-    deviceService.updateState(req.body.device, req.body.state)
+    routineService.updateDeviceState(req.body.device, req.body.state)
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8002 as ErrorLog, details: err})

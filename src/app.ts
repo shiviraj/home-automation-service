@@ -3,7 +3,7 @@ import logger, {ErrorLog} from "./logger/logger";
 import router from "./router";
 import TokenService from "./service/tokenService";
 import HAErrors from "./error/HAErrors";
-import UserService from "./service/userService";
+import UserService from "./service/UserService";
 
 const userService = new UserService()
 

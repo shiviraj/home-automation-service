@@ -1,7 +1,7 @@
 import express, {NextFunction, Request, Response} from "express";
 import logger, {ErrorLog} from "../logger/logger";
 import HAErrors from "../error/HAErrors";
-import UserService from "../service/userService";
+import UserService from "../service/UserService";
 import User, {Role} from "../domain/User";
 
 const userController = express.Router()
