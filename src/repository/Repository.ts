@@ -5,9 +5,11 @@ import RepositoryItem from "./RepositoryItem";
 class Repository<T extends RepositoryItem> {
     protected collection: Collection<T>;
     private readonly type: { new(item: T): T };
+    private readonly collectionName: string;
 
     constructor(collectionName: string, t: new (item: T) => T) {
-        this.collection = db.collection<T>(collectionName)
+        this.collectionName = collectionName
+        this.collection = db.collection<T>(this.collectionName)
         this.type = t
     }
 
@@ -18,7 +20,7 @@ class Repository<T extends RepositoryItem> {
 
     findOne(param: Record<string, any>): Promise<T> {
         return this.collection.findOne(param)
-            .then((item) => item ? item : Promise.reject(null))
+            .then((item) => item ? item : Promise.reject(`No record found in ${this.collectionName} for ${JSON.stringify(param)}`))
     }
 
     findById(id: string): Promise<T> {

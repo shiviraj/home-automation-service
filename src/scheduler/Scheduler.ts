@@ -1,6 +1,8 @@
 import RoutineService from "../service/routine/RoutineService";
-import VariableService from "../service/VariableService";
 import CronScheduler from "./CronScheduler";
+import SunCalc from "suncalc"
+import VariableService from "../service/VariableService";
+import logger from "../logger/logger";
 
 class Scheduler extends CronScheduler {
     private readonly routineService: RoutineService;
@@ -12,29 +14,43 @@ class Scheduler extends CronScheduler {
         super();
         this.routineService = new RoutineService()
         this.variableService = new VariableService()
-        this.init()
+        this.init().then()
     }
 
     start() {
-        const time = this.getTime()
-        return this.routineService.executeScheduled(time)
-    }
-
-    private getTime(): string {
         const time = new Date().toTimeString().slice(0, 5);
-        if (time === this.SUN_SET) return "SUN_SET"
-        if (time === this.SUN_RISE) return "SUN_RISE"
-
-        return time
+        if (time === this.SUN_SET || time === this.SUN_RISE) {
+            const timeAsSun = time === this.SUN_SET ? "SUN_SET" : "SUN_RISE"
+            this.routineService.executeScheduled(timeAsSun)
+                .catch((error) => logger.error({
+                    errorCode: "",
+                    errorMessage: "Failed to execute scheduler",
+                    details: error
+                }))
+        }
+        return this.routineService.executeScheduled(time)
+            .catch((error) => logger.error({
+                errorCode: "",
+                errorMessage: `Failed to execute scheduler at ${time}`,
+                details: error
+            }))
     }
 
-    private init() {
-        this.variableService.getValueOf<string>("SUN_SET")
-            .then(time => this.SUN_SET = time)
-            .catch()
-        this.variableService.getValueOf<string>("SUN_RISE")
-            .then(time => this.SUN_RISE = time)
-            .catch()
+    private async init() {
+        let longitude = 0
+        let latitude = 0
+        try {
+            longitude = await this.variableService.getValueOf<number>("LONGITUDE")
+            latitude = await this.variableService.getValueOf<number>("LATITUDE")
+        } catch (err) {
+            longitude = 77.2090
+            latitude = 28.6139
+        } finally {
+            const {sunrise, sunset} = SunCalc.getTimes(new Date(), latitude, longitude)
+            this.SUN_SET = sunset.toTimeString().slice(0, 5)
+            this.SUN_RISE = sunrise.toTimeString().slice(0, 5)
+            setTimeout(this.init.bind(this), 6 * 60 * 60 * 1000)
+        }
     }
 }
 
