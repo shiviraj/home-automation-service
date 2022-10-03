@@ -14,7 +14,6 @@ class UserService {
 
     constructor() {
         this.userRepository = new UserRepository();
-        this.initUser()
     }
 
     addUser(user: User): Promise<User> {
@@ -54,7 +53,7 @@ class UserService {
             .then((status: boolean) => ({status: !status}))
     }
 
-    private initUser() {
+    initUser() {
         this.userRepository.exists({})
             .then(async (isExist) => {
                 if (!isExist) {

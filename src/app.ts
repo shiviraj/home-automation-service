@@ -6,6 +6,7 @@ import HAErrors from "./error/HAErrors";
 import UserService from "./service/UserService";
 
 const userService = new UserService()
+userService.initUser()
 
 const app = express()
 app.use(express.json())
