@@ -9,6 +9,8 @@ class Scheduler extends CronScheduler {
     private variableService: VariableService;
     private SUN_SET: string = "18:06";
     private SUN_RISE: string = "05:55";
+    private longitude: number = 77.2090
+    private latitude: number = 28.6139
 
     constructor() {
         super();
@@ -37,16 +39,13 @@ class Scheduler extends CronScheduler {
     }
 
     private async init() {
-        let longitude = 0
-        let latitude = 0
         try {
-            longitude = await this.variableService.getValueOf<number>("LONGITUDE")
-            latitude = await this.variableService.getValueOf<number>("LATITUDE")
+            this.longitude = await this.variableService.getValueOf<number>("LONGITUDE")
+            this.latitude = await this.variableService.getValueOf<number>("LATITUDE")
         } catch (err) {
-            longitude = 77.2090
-            latitude = 28.6139
+            logger.error({errorCode: "", errorMessage: "Failed to find coordinates", details: err})
         } finally {
-            const {sunrise, sunset} = SunCalc.getTimes(new Date(), latitude, longitude)
+            const {sunrise, sunset} = SunCalc.getTimes(new Date(), this.latitude, this.longitude)
             this.SUN_SET = sunset.toTimeString().slice(0, 5)
             this.SUN_RISE = sunrise.toTimeString().slice(0, 5)
             setTimeout(this.init.bind(this), 6 * 60 * 60 * 1000)
