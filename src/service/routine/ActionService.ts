@@ -2,12 +2,15 @@ import Action from "../../domain/routine/Action";
 import DeviceService from "../DeviceService";
 import MQTTTopic from "../../domain/MQTTTopic";
 import wss, {WSEvent} from "../../websocketServer";
+import VariableService from "../VariableService";
 
 class ActionService {
     private deviceService: DeviceService;
+    private variableService: VariableService;
 
     constructor() {
         this.deviceService = new DeviceService()
+        this.variableService = new VariableService()
     }
 
     executeActions(actions: Array<Action>) {
@@ -21,10 +24,12 @@ class ActionService {
                 case "DEVICE":
                     await this.updateDeviceState(action)
                     break;
+                case "VARIABLE":
+                    await this.updateVariable(action)
+                    break;
                 default:
                     break;
             }
-
         })
     }
 
@@ -39,6 +44,10 @@ class ActionService {
             .then((device) => {
                 wss.broadcastAndSendToNode({event: WSEvent.UPDATE_STATE, data: device}, MQTTTopic.UPDATE_STATE)
             })
+    }
+
+    private async updateVariable(action: Action) {
+        return this.variableService.updateVariable(action.identifier, action.update)
     }
 }
 

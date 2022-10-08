@@ -7,4 +7,6 @@ fileignoreconfig:
   checksum: da8fcff79301a87b6c5c885f00093b74a5fd49563835882bedd35bfeaeaa32c6
 - filename: src/websocketServer.ts
   checksum: 42db2f88bcf54c2b6353209ea65305245495ecd007bb823606da556b8f9dd90f
+- filename: package-lock.json
+  checksum: 761ae1e2a6ed2828c250f4e0b233f24ed76f7ee39822cb13b369837ff9988d52
 version: ""

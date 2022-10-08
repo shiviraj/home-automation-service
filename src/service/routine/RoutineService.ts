@@ -37,7 +37,10 @@ class RoutineService {
     private executeAvailableRoutine(query: Document) {
         return this.findExecutableRoutines(query)
             .then((routines) => {
-                routines.forEach((routine) => this.actionService.executeActions(routine.actions))
+                routines.forEach(async (routine) => {
+                    await this.updateRoutineIfAny(routine)
+                    this.actionService.executeActions(routine.actions);
+                })
             })
     }
 
@@ -48,6 +51,19 @@ class RoutineService {
                     return await this.conditionService.isSatisfied(routine.conditions)
                 })
             })
+    }
+
+    private async updateRoutineIfAny(routine: Routine) {
+        const actions = routine.actions.filter((action) => action.type === "ROUTINE_TRIGGER_UPDATE")
+        actions.forEach(action => {
+            this.routineRepository.find({state: "active", ...action.identifier})
+                .then((routines) => {
+                    routines.forEach(routine => {
+                        routine.trigger.update(action.update as { type: string, value: string })
+                        this.routineRepository.save(routine)
+                    })
+                })
+        })
     }
 }
 

@@ -5,7 +5,7 @@ class Variable<T extends any> {
     label: string
     name: string
     value: T
-    type: "string" | "number" | "boolean"
+    type: "string" | "number" | "boolean" | "Date"
 
     constructor(variable: Variable<T>) {
         this._id = variable._id
