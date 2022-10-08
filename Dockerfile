@@ -11,5 +11,5 @@ WORKDIR /app
 COPY --from=builder /app/package* ./
 RUN npm install
 COPY --from=builder /app/dist ./dist
-EXPOSE 8080
+EXPOSE 3001
 CMD [ "npm", "start" ]

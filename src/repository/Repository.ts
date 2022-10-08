@@ -20,7 +20,7 @@ class Repository<T extends RepositoryItem> {
 
     findOne(param: Record<string, any>): Promise<T> {
         return this.collection.findOne(param)
-            .then((item) => item ? item : Promise.reject(`No record found in ${this.collectionName} for ${JSON.stringify(param)}`))
+            .then((item) => item ? new this.type(item) : Promise.reject(`No record found in ${this.collectionName} for ${JSON.stringify(param)}`))
     }
 
     findById(id: string): Promise<T> {

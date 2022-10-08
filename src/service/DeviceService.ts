@@ -1,6 +1,5 @@
 import DeviceRepository from "../repository/DeviceRepository";
 import Device from "../domain/Device";
-import {Document} from "raspberrypi-db/lib/api/collection";
 
 class DeviceService {
     private readonly deviceRepository: DeviceRepository;
@@ -13,18 +12,14 @@ class DeviceService {
         return this.deviceRepository.find({})
     }
 
-    updateState(device: Document, value: number): Promise<Device> {
-        return this.deviceRepository.findById(device._id!)
+    updateState(identifier: Record<string, any>, value: number): Promise<Device> {
+        return this.findDevice(identifier)
             .then((device) => {
-                // if (device.routine) {
-                //     return this.routineService.executeByName(`${device.routine}_${value ? "ON" : "OFF"}`)
-                //         .then(() => device)
-                // }
-                return this.deviceRepository.save(device.updateState(value))
+                return this.deviceRepository.save(device.updateState(value));
             })
     }
 
-    getDevice(node: string): Promise<Array<Device>> {
+    getDevices(node: string): Promise<Array<Device>> {
         return this.deviceRepository.find({node})
     }
 
@@ -35,9 +30,13 @@ class DeviceService {
             })
     }
 
-    getRoutine(device: Device): Promise<string> {
+    getRoutine(device: Device): Promise<string | null> {
         return this.deviceRepository.findById(device._id!)
-            .then((device) => device.routine || "")
+            .then((device) => device.routine)
+    }
+
+    findDevice(identifier: Record<string, any>): Promise<Device> {
+        return this.deviceRepository.findOne(identifier)
     }
 }
 

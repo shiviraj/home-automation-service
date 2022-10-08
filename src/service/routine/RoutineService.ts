@@ -13,9 +13,9 @@ class RoutineService {
     private deviceService: DeviceService;
 
     constructor() {
+        this.deviceService = new DeviceService()
         this.routineRepository = new RoutineRepository()
         this.conditionService = new ConditionService()
-        this.deviceService = new DeviceService()
         this.actionService = new ActionService()
     }
 
@@ -25,7 +25,7 @@ class RoutineService {
 
     updateDeviceState(device: Device, state: number): Promise<Device> {
         return this.deviceService.getRoutine(device)
-            .then(routineName => {
+            .then((routineName) => {
                 if (routineName) {
                     return this.executeAvailableRoutine({name: `${routineName}_${state ? "ON" : "OFF"}`})
                         .then(() => device)
@@ -37,7 +37,7 @@ class RoutineService {
     private executeAvailableRoutine(query: Document) {
         return this.findExecutableRoutines(query)
             .then((routines) => {
-                routines.forEach(routine => this.actionService.executeActions(routine.actions))
+                routines.forEach((routine) => this.actionService.executeActions(routine.actions))
             })
     }
 

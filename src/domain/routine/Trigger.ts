@@ -1,5 +1,5 @@
 class Trigger {
-    type: "VOICE" | "SCHEDULED"
+    type: "VOICE" | "SCHEDULED" | "SENSOR"
     at: Array<string>
 
     constructor(trigger: Trigger) {

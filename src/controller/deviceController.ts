@@ -18,7 +18,7 @@ deviceController.get("", (_req: Request, res: Response) => {
 })
 
 deviceController.get("/:node", (req: Request, res: Response) => {
-    deviceService.getDevice(req.params.node)
+    deviceService.getDevices(req.params.node)
         .then((data) => res.send(data))
         .catch((err) => {
             logger.error({...HAErrors.HA8001 as ErrorLog, details: err})
@@ -32,15 +32,6 @@ deviceController.put("", (req: Request, res: Response) => {
         .catch((err) => {
             logger.error({...HAErrors.HA8002 as ErrorLog, details: err})
             res.status(500).send(HAErrors.HA8002)
-        })
-})
-
-deviceController.put("/:id", (req: Request, res: Response) => {
-    deviceService.updateInputState(req.params.id, req.body.state)
-        .then((data) => res.send(data))
-        .catch((err) => {
-            logger.error({...HAErrors.HA8006 as ErrorLog, details: err})
-            res.status(500).send(HAErrors.HA8006)
         })
 })
 

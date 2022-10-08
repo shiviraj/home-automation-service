@@ -1,5 +1,7 @@
 import Action from "../../domain/routine/Action";
 import DeviceService from "../DeviceService";
+import MQTTTopic from "../../domain/MQTTTopic";
+import wss, {WSEvent} from "../../websocketServer";
 
 class ActionService {
     private deviceService: DeviceService;
@@ -32,8 +34,11 @@ class ActionService {
         setTimeout(this.executeActions, action.update.value * 60000, remainingActions)
     }
 
-    private async updateDeviceState(action: Action) {
-        return await this.deviceService.updateState(action.identifier, action.update.value)
+    private updateDeviceState(action: Action) {
+        return this.deviceService.updateState(action.identifier, action.update.value)
+            .then((device) => {
+                wss.broadcastAndSendToNode({event: WSEvent.UPDATE_STATE, data: device}, MQTTTopic.UPDATE_STATE)
+            })
     }
 }
 

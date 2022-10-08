@@ -3,7 +3,7 @@ class Device {
     readonly location: string
     readonly name: string
     readonly number: number
-    readonly nodeMcu: string
+    readonly node: string
     readonly pin: number
     readonly type: "ANALOG" | "DIGITAL"
     readonly mode: "INPUT" | "OUTPUT"
@@ -17,7 +17,7 @@ class Device {
         this.location = device.location
         this.name = device.name
         this.number = device.number
-        this.nodeMcu = device.nodeMcu
+        this.node = device.node
         this.pin = device.pin
         this.type = device.type
         this.mode = device.mode
@@ -36,6 +36,11 @@ class Device {
         if (this.mode === "OUTPUT" && this.control === "ENABLED")
             this.value = value
         return this
+    }
+
+    getValue(key: string): any {
+        // @ts-ignore
+        return this[key]
     }
 }
 

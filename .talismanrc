@@ -1,0 +1,10 @@
+fileignoreconfig:
+- filename: package-lock.json
+  checksum: 1a2946877e5a89843d6657e7c3f10e086c7ee3cfa4064d222b493d8cc949b71a
+- filename: src/config/constant.ts
+  checksum: 884d133a4a729cf975c188693f061acd74350fbce26d9edd5ba0faebfffdcab3
+- filename: src/domain/Device.ts
+  checksum: da8fcff79301a87b6c5c885f00093b74a5fd49563835882bedd35bfeaeaa32c6
+- filename: src/websocketServer.ts
+  checksum: 42db2f88bcf54c2b6353209ea65305245495ecd007bb823606da556b8f9dd90f
+version: ""
