@@ -26,10 +26,20 @@ class ConditionService {
         return this.executeCondition<number>(device.getValue(condition.condition.key), condition.operator, condition.condition.value)
     }
 
-    private executeCondition<T>(deviceElement: any, operator: "EQ" | "NE" | "GT" | "LT" | "GE" | "LE", value: any) {
+    private executeCondition<T>(deviceElement: T, operator: "EQ" | "NE" | "GT" | "LT" | "GE" | "LE", value: T) {
         switch (operator) {
             case "EQ":
-                return deviceElement as T === value as T
+                return deviceElement === value
+            case "NE":
+                return deviceElement !== value
+            case "GT":
+                return deviceElement > value
+            case "LT":
+                return deviceElement < value
+            case "GE":
+                return deviceElement >= value
+            case "LE":
+                return deviceElement <= value
             default:
                 return true
         }

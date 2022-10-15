@@ -20,6 +20,7 @@ class MqttService {
         return (topicName: string, buffer: Buffer) => {
             const [node, topic] = topicName.split("/")
             const payload = buffer.toString()
+            logger.info({message: "received message on mqtt", data: {payload, topic, node}})
             switch (topic) {
                 case MQTTTopic.DEVICES:
                     this.deviceService.getDevices(node)

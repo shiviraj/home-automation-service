@@ -1,5 +1,6 @@
 import DeviceRepository from "../repository/DeviceRepository";
 import Device from "../domain/Device";
+import logger from "../logger/logger";
 
 class DeviceService {
     private readonly deviceRepository: DeviceRepository;
@@ -15,7 +16,16 @@ class DeviceService {
     updateState(identifier: Record<string, any>, value: number): Promise<Device> {
         return this.findDevice(identifier)
             .then((device) => {
-                return this.deviceRepository.save(device.updateState(value));
+                return this.deviceRepository.save(device.updateState(value))
+                    .then(logger.logOnSuccess({
+                        message: "Successfully update device state",
+                        data: {from: device.value, to: value, device}
+                    }))
+                    .catch(logger.logOnError({
+                        errorCode: "",
+                        errorMessage: "Failed to update device state",
+                        data: {from: device.value, to: value, device}
+                    }))
             })
     }
 
@@ -30,9 +40,11 @@ class DeviceService {
             })
     }
 
-    getRoutine(device: Device): Promise<string | null> {
-        return this.deviceRepository.findById(device._id!)
-            .then((device) => device.routine)
+    getRoutine(device: Device): Promise<string> {
+        return this.deviceRepository.findById(<string>device._id)
+            .then((d) => d.routine || "")
+            .then(logger.logOnSuccess({message: `Successfully find routine for device ${device._id}`}))
+            .catch(logger.logOnError({errorCode: "", errorMessage: `Failed to find routine for device ${device._id}`}))
     }
 
     findDevice(identifier: Record<string, any>): Promise<Device> {

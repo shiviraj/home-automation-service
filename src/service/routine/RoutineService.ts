@@ -5,6 +5,7 @@ import ActionService from "./ActionService";
 import {Document} from "../../domain/Variable";
 import Device from "../../domain/Device";
 import DeviceService from "../DeviceService";
+import logger from "../../logger/logger";
 
 class RoutineService {
     private routineRepository: RoutineRepository;
@@ -30,13 +31,18 @@ class RoutineService {
                     return this.executeAvailableRoutine({name: `${routineName}_${state ? "ON" : "OFF"}`})
                         .then(() => device)
                 }
-                return this.deviceService.updateState(device, state)
+                return this.actionService.updateDeviceState({
+                    type: "DEVICE",
+                    identifier: device,
+                    update: {value: state}
+                }).then(() => device)
             })
     }
 
     private executeAvailableRoutine(query: Document) {
         return this.findExecutableRoutines(query)
             .then((routines) => {
+                logger.info({message: `Got ${routines.length} executable routines`, data: {query}})
                 routines.forEach(async (routine) => {
                     await this.updateRoutineIfAny(routine)
                     this.actionService.executeActions(routine.actions);
@@ -51,16 +57,31 @@ class RoutineService {
                     return await this.conditionService.isSatisfied(routine.conditions)
                 })
             })
+            .then(logger.logOnSuccess({message: `Successfully find executable routines`, data: {query}}))
+            .catch(logger.logOnError({
+                errorCode: "",
+                errorMessage: `No executable routines found`, data: {query}
+            }))
     }
 
     private async updateRoutineIfAny(routine: Routine) {
         const actions = routine.actions.filter((action) => action.type === "ROUTINE_TRIGGER_UPDATE")
-        actions.forEach(action => {
+        actions.length && logger.info({message: "Got updatable routine actions"})
+        actions.forEach((action) => {
             this.routineRepository.find({state: "active", ...action.identifier})
                 .then((routines) => {
-                    routines.forEach(routine => {
+                    routines.forEach((routine) => {
                         routine.trigger.update(action.update as { type: string, value: string })
                         this.routineRepository.save(routine)
+                            .then(logger.logOnSuccess({
+                                message: "Successfully update routine",
+                                data: {routine, update: action.update}
+                            }))
+                            .catch(logger.logOnError({
+                                errorCode: "",
+                                errorMessage: "Failed to update routine",
+                                data: {routine, update: action.update}
+                            }))
                     })
                 })
         })

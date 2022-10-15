@@ -3,10 +3,8 @@ import bcrypt from "bcryptjs"
 import User, {Role} from "../domain/User";
 import {randomUUID} from "crypto";
 import logger from "../logger/logger";
-import {SALT_ROUND, SECRET_KEY} from "../config/constant";
+import {SALT_ROUND} from "../config/constant";
 import TokenService from "./tokenService";
-import Token from "../domain/Token";
-import jwt from "jsonwebtoken";
 import HAErrors from "../error/HAErrors";
 
 class UserService {
@@ -67,11 +65,7 @@ class UserService {
                     } as User)
                         .then((user: User) => {
                             logger.info({message: `Default username '${user.username}' and password '${password}'`});
-                            const payload = JSON.stringify(new Token("INTERNAL_USER", new Date(), new Date(new Date().setFullYear(new Date().getFullYear() + 100))));
-                            const token = jwt.sign(payload, SECRET_KEY)
-                            logger.info({message: `default INTERNAL TOKEN: ${token}`})
                         })
-
                 }
             })
     }

@@ -3,6 +3,7 @@ import CronScheduler from "./CronScheduler";
 import SunCalc from "suncalc"
 import VariableService from "../service/VariableService";
 import logger from "../logger/logger";
+import {momentIst} from "../utils/moment";
 
 class Scheduler extends CronScheduler {
     private readonly routineService: RoutineService;
@@ -20,21 +21,33 @@ class Scheduler extends CronScheduler {
     }
 
     start() {
-        const time = new Date().toTimeString().slice(0, 5);
-        if (time === this.SUN_SET || time === this.SUN_RISE) {
-            const timeAsSun = time === this.SUN_SET ? "SUN_SET" : "SUN_RISE"
-            this.routineService.executeScheduled(timeAsSun)
-                .catch((error) => logger.error({
-                    errorCode: "",
-                    errorMessage: "Failed to execute scheduler",
-                    details: error
-                }))
-        }
-        return this.routineService.executeScheduled(time)
-            .catch((error) => logger.error({
+        const now = momentIst()
+        logger.info({message: "Scheduler started...", data: {startedAt: now.format("YYYY-MM-DD HH:mm:ss Z")}})
+        const time = now.format("HH:mm");
+        this.routineService.executeScheduled(time)
+            .catch((_error) => ({}))
+            .then(() => {
+                if (time === this.SUN_SET || time === this.SUN_RISE) {
+                    const timeAsSun = time === this.SUN_SET ? "SUN_SET" : "SUN_RISE"
+                    return this.routineService.executeScheduled(timeAsSun)
+                }
+                return new Promise((resolve) => resolve(""))
+            })
+            .then(logger.logOnSuccess({
+                    message: "Scheduler completed",
+                    data: {
+                        startedAt: now.format("YYYY-MM-DD HH:mm:ss Z"),
+                        completedAt: momentIst().format("YYYY-MM-DD HH:mm:ss Z")
+                    }
+                })
+            )
+            .catch(logger.logOnError({
                 errorCode: "",
-                errorMessage: `Failed to execute scheduler at ${time}`,
-                details: error
+                errorMessage: "Failed Scheduler",
+                data: {
+                    startedAt: now.format("YYYY-MM-DD HH:mm:ss Z"),
+                    failedAt: momentIst().format("YYYY-MM-DD HH:mm:ss Z")
+                }
             }))
     }
 
@@ -45,9 +58,9 @@ class Scheduler extends CronScheduler {
         } catch (err) {
             logger.error({errorCode: "", errorMessage: "Failed to find coordinates", details: err})
         } finally {
-            const {sunrise, sunset} = SunCalc.getTimes(new Date(), this.latitude, this.longitude)
-            this.SUN_SET = sunset.toTimeString().slice(0, 5)
-            this.SUN_RISE = sunrise.toTimeString().slice(0, 5)
+            const {sunrise, sunset} = SunCalc.getTimes(momentIst().toDate(), this.latitude, this.longitude)
+            this.SUN_SET = momentIst(sunset).format("HH:mm")
+            this.SUN_RISE = momentIst(sunrise).format("HH:mm")
             setTimeout(this.init.bind(this), 6 * 60 * 60 * 1000)
         }
     }

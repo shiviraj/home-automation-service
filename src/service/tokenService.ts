@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import Token from "../domain/Token";
 import {SECRET_KEY} from "../config/constant";
 import User from "../domain/User";
+import {momentIst} from "../utils/moment";
 
 
 const TokenService = {
@@ -16,7 +17,7 @@ const TokenService = {
 
         if (typeof payload === "string") return [false, ""]
 
-        if (new Date(payload.createdAt) < new Date() && new Date() < new Date(payload.expiredAt)) {
+        if (momentIst().isBetween(momentIst(payload.createdAt), momentIst(payload.expiredAt))) {
             return [true, payload.username as string];
         }
         return [false, ""]

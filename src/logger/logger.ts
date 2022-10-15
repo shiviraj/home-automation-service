@@ -1,42 +1,34 @@
+import {momentIst} from "../utils/moment";
+
 export type Log = { message: string, data?: any }
-export type ErrorLog = { errorCode: string, errorMessage: string, data?: any, details?: any }
-
-const getFormat = (num: number, length: number = 2): string => String(num).padStart(length, '0')
-
-const getTimezone = (offset: number) => {
-    const t1 = Math.abs(offset / 60)
-    const hrs = Math.floor(t1)
-    const mins = (t1 - hrs) * 60
-    const offsetSymbol = offset < 0 ? '+' : '-'
-    return `${offsetSymbol}${getFormat(hrs)}${getFormat(mins)}`
-}
-
-const getTimestamp = (): string => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth() + 1
-    const date = now.getDate()
-    const time = `${[getFormat(now.getHours()),
-        getFormat(now.getMinutes()),
-        getFormat(now.getSeconds())].join(':')}.${getFormat(now.getMilliseconds(), 3)}`
-    const timezone = getTimezone(now.getTimezoneOffset())
-    return `${year}-${getFormat(month)}-${getFormat(date)}T${time}${timezone}`
-}
+export type ErrorLog = { errorCode: string, errorMessage: string, data?: any, details?: any, stack?: any }
 
 const logger = {
     info(log: Log) {
         console.log(JSON.stringify({
-            timestamp: getTimestamp(),
+            timestamp: momentIst().format("YYYY-MM-DD HH:mm:ss Z"),
             level: "INFO",
             details: log
         }))
     },
     error(log: ErrorLog) {
         console.log(JSON.stringify({
-            timestamp: getTimestamp(),
+            timestamp: momentIst().format("YYYY-MM-DD HH:mm:ss Z"),
             level: "ERROR",
             ...log
         }))
+    },
+    logOnSuccess(log: Log) {
+        return (arg: any) => {
+            this.info(log)
+            return arg
+        };
+    },
+    logOnError(errorLog: ErrorLog) {
+        return (error: any) => {
+            this.error({...errorLog, stack: error.stack})
+            throw error;
+        };
     }
 }
 

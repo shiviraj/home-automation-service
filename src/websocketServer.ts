@@ -20,7 +20,6 @@ export type WSData = {
 
 const topics = new Array(8).fill("").flatMap((_, index) => [`node-${index + 1}/devices`, `node-${index + 1}/update-state`])
 
-
 export class WSS {
     private wss: WebSocket.Server<WebSocket.WebSocket>;
     private client: MqttClient;
@@ -28,7 +27,7 @@ export class WSS {
     constructor() {
         this.wss = new WebSocket.WebSocketServer({noServer: true, path: '/websockets'})
         this.client = mqtt.connect(MQTT_URL, {
-            clientId: 'MQTT_BFF',
+            clientId: 'MQTT',
             clean: true,
             connectTimeout: 4000,
             username: MQTT_USERNAME,
@@ -40,7 +39,10 @@ export class WSS {
 
     broadcast(payload: WSData) {
         this.wss.clients.forEach((client) => client.send(JSON.stringify(payload)))
-        logger.info({message: "Successfully broadcast message", data: {event: payload.event}})
+        logger.info({
+            message: "Successfully broadcast message to UI",
+            data: {event: payload.event, message: this.createMessage(payload.data as Device)}
+        })
         return payload
     }
 
@@ -71,11 +73,11 @@ export class WSS {
             if (error) {
                 return logger.error({
                     errorCode: "PUBLISH_ERROR",
-                    errorMessage: `Failed to publish ${topic} to MQTT`,
+                    errorMessage: `Failed to publish topic ${topic} to MQTT`,
                     details: error
                 })
             }
-            logger.info({message: `Successfully to published ${topic} to MQTT, ${message}`})
+            logger.info({message: `Successfully published topic ${topic} to MQTT`, data: {message}})
         })
     }
 
