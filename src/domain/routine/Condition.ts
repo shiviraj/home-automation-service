@@ -1,8 +1,8 @@
 export class OrCondition {
     operator: "EQ" | "NE" | "GT" | "LT" | "GE" | "LE"
-    type: "DEVICE" | "VARIABLE"
+    type: "DEVICE" | "VARIABLE" | "TIME"
     identifier: Record<string, any>
-    condition: { key: string, value: any }
+    condition: Record<string, any>
 
     constructor(orCondition: OrCondition) {
         this.operator = orCondition.operator

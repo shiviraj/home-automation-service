@@ -1,11 +1,14 @@
 import Condition, {OrCondition} from "../../domain/routine/Condition";
 import DeviceService from "../DeviceService";
+import Sun from "../../utils/sun";
 
 class ConditionService {
     private deviceService: DeviceService;
+    private sun: Sun;
 
     constructor() {
         this.deviceService = new DeviceService()
+        this.sun = new Sun()
     }
 
     async isSatisfied(conditions: Array<Condition>) {
@@ -14,6 +17,8 @@ class ConditionService {
                 switch (condition.type) {
                     case "DEVICE":
                         return await this.executeDeviceCondition(condition)
+                    case "TIME":
+                        return this.isSatisfiedTime(condition)
                     default:
                         return true
                 }
@@ -43,7 +48,15 @@ class ConditionService {
             default:
                 return true
         }
+    }
 
+    private isSatisfiedTime(condition: OrCondition): boolean {
+        switch (condition.identifier.operator) {
+            case "BETWEEN":
+                return this.sun.isBetween(condition.condition)
+            default:
+                return true
+        }
     }
 }
 

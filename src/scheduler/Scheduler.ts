@@ -1,23 +1,17 @@
 import RoutineService from "../service/routine/RoutineService";
 import CronScheduler from "./CronScheduler";
-import SunCalc from "suncalc"
-import VariableService from "../service/VariableService";
 import logger from "../logger/logger";
 import {momentIst} from "../utils/moment";
+import Sun from "../utils/sun";
 
 class Scheduler extends CronScheduler {
     private readonly routineService: RoutineService;
-    private variableService: VariableService;
-    private SUN_SET: string = "18:06";
-    private SUN_RISE: string = "05:55";
-    private longitude: number = 77.2090
-    private latitude: number = 28.6139
+    private sun: Sun;
 
     constructor() {
         super();
         this.routineService = new RoutineService()
-        this.variableService = new VariableService()
-        this.init().then()
+        this.sun = new Sun()
     }
 
     start() {
@@ -27,8 +21,8 @@ class Scheduler extends CronScheduler {
         this.routineService.executeScheduled(time)
             .catch((_error) => ({}))
             .then(() => {
-                if (time === this.SUN_SET || time === this.SUN_RISE) {
-                    const timeAsSun = time === this.SUN_SET ? "SUN_SET" : "SUN_RISE"
+                if (this.sun.isSunSet() || this.sun.isSunRise()) {
+                    const timeAsSun = this.sun.timeAsSun()
                     return this.routineService.executeScheduled(timeAsSun)
                 }
                 return new Promise((resolve) => resolve(""))
@@ -49,20 +43,6 @@ class Scheduler extends CronScheduler {
                     failedAt: momentIst().format("YYYY-MM-DD HH:mm:ss Z")
                 }
             }))
-    }
-
-    private async init() {
-        try {
-            this.longitude = await this.variableService.getValueOf<number>("LONGITUDE")
-            this.latitude = await this.variableService.getValueOf<number>("LATITUDE")
-        } catch (err) {
-            logger.error({errorCode: "", errorMessage: "Failed to find coordinates", details: err})
-        } finally {
-            const {sunrise, sunset} = SunCalc.getTimes(momentIst().toDate(), this.latitude, this.longitude)
-            this.SUN_SET = momentIst(sunset).format("HH:mm")
-            this.SUN_RISE = momentIst(sunrise).format("HH:mm")
-            setTimeout(this.init.bind(this), 6 * 60 * 60 * 1000)
-        }
     }
 }
 
