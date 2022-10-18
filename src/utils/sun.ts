@@ -12,8 +12,8 @@ class Sun {
 
     constructor() {
         this.variableService = new VariableService()
-        this.sunRise = momentIst()
-        this.sunSet = momentIst()
+        this.sunRise = momentIst("06:00", "HH:mm")
+        this.sunSet = momentIst("18:00", "HH:mm")
         this.init().then()
     }
 
@@ -51,16 +51,16 @@ class Sun {
         return this.isSunSet() ? 'SUN_SET' : "SUN_RISE"
     }
 
-    isBetween(start: string, end: string): boolean {
+    isBetween(start: string, end: string, days: number): boolean {
         const startTime = this.getTime(start)
-        const endTime = this.getTime(end)
+        const endTime = this.getTime(end, days)
         return momentIst().isBetween(startTime, endTime)
     }
 
-    private getTime(time: string): moment.Moment {
+    private getTime(time: string, days: number = 0): moment.Moment {
         if (time === "SUN_SET") time = this.getSunSetTime()
         if (time === "SUN_RISE") time = this.getSunRiseTime()
-        return momentIst(time, TIME_FORMAT)
+        return momentIst(time, TIME_FORMAT).add(days, "days")
     }
 }
 

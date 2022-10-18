@@ -38,8 +38,7 @@ class Repository<T extends RepositoryItem> {
     }
 
     exists(param: Record<string, any>): Promise<boolean> {
-        return this.find(param)
-            .then((items: Array<T>) => items.length > 0)
+        return this.findOne(param).then(() => true).catch(() => false)
     }
 
     save(item: T): Promise<T> {

@@ -53,7 +53,7 @@ class ConditionService {
     private isSatisfiedTime(condition: OrCondition): boolean {
         switch (condition.identifier.operator) {
             case "BETWEEN":
-                return this.sun.isBetween(condition.condition.start, condition.condition.end)
+                return this.sun.isBetween(condition.condition.start, condition.condition.end, condition.condition.days)
             default:
                 return true
         }
