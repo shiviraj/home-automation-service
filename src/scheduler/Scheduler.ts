@@ -1,12 +1,12 @@
 import RoutineService from "../service/routine/RoutineService";
 import CronScheduler from "./CronScheduler";
 import logger from "../logger/logger";
-import {momentIst} from "../utils/moment";
+import {momentIst, TIME_FORMAT} from "../utils/moment";
 import Sun from "../utils/sun";
 
 class Scheduler extends CronScheduler {
     private readonly routineService: RoutineService;
-    private sun: Sun;
+    private readonly sun: Sun;
 
     constructor() {
         super();
@@ -16,32 +16,24 @@ class Scheduler extends CronScheduler {
 
     start() {
         const now = momentIst()
-        logger.info({message: "Scheduler started...", data: {startedAt: now.format("YYYY-MM-DD HH:mm:ss Z")}})
-        const time = now.format("HH:mm");
-        this.routineService.executeScheduled(time)
+        logger.info({message: "Scheduler started..."})
+        this.routineService.executeScheduled(now.format(TIME_FORMAT))
             .catch((_error) => ({}))
             .then(() => {
                 if (this.sun.isSunSet() || this.sun.isSunRise()) {
-                    const timeAsSun = this.sun.timeAsSun()
-                    return this.routineService.executeScheduled(timeAsSun)
+                    return this.routineService.executeScheduled(this.sun.timeAsSun())
                 }
                 return new Promise((resolve) => resolve(""))
             })
             .then(logger.logOnSuccess({
                     message: "Scheduler completed",
-                    data: {
-                        startedAt: now.format("YYYY-MM-DD HH:mm:ss Z"),
-                        completedAt: momentIst().format("YYYY-MM-DD HH:mm:ss Z")
-                    }
+                    data: {startedAt: now.format("YYYY-MM-DD HH:mm:ss Z")}
                 })
             )
             .catch(logger.logOnError({
                 errorCode: "",
                 errorMessage: "Failed Scheduler",
-                data: {
-                    startedAt: now.format("YYYY-MM-DD HH:mm:ss Z"),
-                    failedAt: momentIst().format("YYYY-MM-DD HH:mm:ss Z")
-                }
+                data: {startedAt: now.format("YYYY-MM-DD HH:mm:ss Z")}
             }))
     }
 }

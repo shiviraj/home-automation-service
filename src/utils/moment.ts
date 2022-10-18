@@ -1,6 +1,14 @@
 import moment from "moment";
 
 const IST_TIMEZONE = "+05:30"
-const momentIst = (time: any = undefined): moment.Moment => moment(time).utcOffset(IST_TIMEZONE)
+const TIME_FORMAT = "HH:mm"
 
-export {momentIst, moment}
+const momentIst = (time: any | undefined = undefined, format: string = ""): moment.Moment => {
+    if (time && format) {
+        time = time + IST_TIMEZONE
+        format = format + 'Z'
+    }
+    return moment(time, format).utcOffset(IST_TIMEZONE);
+}
+
+export {momentIst, moment, TIME_FORMAT}

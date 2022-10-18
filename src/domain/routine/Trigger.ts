@@ -1,4 +1,4 @@
-import {momentIst} from "../../utils/moment";
+import {momentIst, TIME_FORMAT} from "../../utils/moment";
 
 class Trigger {
     type: "VOICE" | "SCHEDULED" | "SENSOR"
@@ -11,7 +11,7 @@ class Trigger {
 
     update(update: { type: string, value: string }) {
         if (update.type === "TIME") {
-            this.at = [momentIst().add(update.value, 'm').format("HH:mm")]
+            this.at = [momentIst().add(update.value, 'm').format(TIME_FORMAT)]
         }
     }
 }

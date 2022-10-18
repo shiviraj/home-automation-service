@@ -1,6 +1,6 @@
 import logger from "../logger/logger";
 import SunCalc from "suncalc";
-import {moment, momentIst} from "./moment";
+import {moment, momentIst, TIME_FORMAT} from "./moment";
 import VariableService from "../service/VariableService";
 
 class Sun {
@@ -17,7 +17,7 @@ class Sun {
         this.init().then()
     }
 
-    async init() {
+    private async init() {
         try {
             this.longitude = await this.variableService.getValueOf<number>("LONGITUDE")
             this.latitude = await this.variableService.getValueOf<number>("LATITUDE")
@@ -32,36 +32,35 @@ class Sun {
     }
 
     getSunSetTime(): string {
-        return this.sunSet.format("HH:mm")
+        return this.sunSet.format(TIME_FORMAT)
     }
 
     getSunRiseTime(): string {
-        return this.sunRise.format("HH:mm")
+        return this.sunRise.format(TIME_FORMAT)
     }
 
     isSunSet(): boolean {
-        return momentIst().format("HH:mm") === this.getSunSetTime();
+        return momentIst().format(TIME_FORMAT) === this.getSunSetTime();
     }
 
     isSunRise(): boolean {
-        return momentIst().format("HH:mm") === this.getSunRiseTime();
+        return momentIst().format(TIME_FORMAT) === this.getSunRiseTime();
     }
 
     timeAsSun(): string {
         return this.isSunSet() ? 'SUN_SET' : "SUN_RISE"
     }
 
-    isBetween(condition: Record<string, any>): boolean {
-        const startTime = this.getTime(condition.start as string)
-        const endTime = this.getTime(condition.end as string)
+    isBetween(start: string, end: string): boolean {
+        const startTime = this.getTime(start)
+        const endTime = this.getTime(end)
         return momentIst().isBetween(startTime, endTime)
     }
 
-    private getTime(time: string) {
-        if (time !== "SUN_SET" && time !== "SUN_RISE") {
-            return momentIst(time)
-        }
-        return momentIst(time === "SUN_SET" ? this.getSunSetTime() : this.getSunRiseTime())
+    private getTime(time: string): moment.Moment {
+        if (time === "SUN_SET") time = this.getSunSetTime()
+        if (time === "SUN_RISE") time = this.getSunRiseTime()
+        return momentIst(time, TIME_FORMAT)
     }
 }
 
