@@ -52,10 +52,14 @@ class RoutineService {
 
     private findExecutableRoutines(query: Document): Promise<Array<Routine>> {
         return this.routineRepository.find({state: "active", ...query})
-            .then((routines) => {
-                return routines.filter(async (routine) => {
-                    return await this.conditionService.isSatisfied(routine.conditions)
-                })
+            .then(async (routines) => {
+                const result = []
+                for (const routine of routines) {
+                    if (await this.conditionService.isSatisfied(routine.conditions)) {
+                        result.push(routine)
+                    }
+                }
+                return result
             })
             .then(logger.logOnSuccess({message: `Successfully find executable routines`, data: {query}}))
             .catch(logger.logOnError({

@@ -12,18 +12,28 @@ class ConditionService {
     }
 
     async isSatisfied(conditions: Array<Condition>) {
-        return conditions.every((andCondition) => {
-            return andCondition.orConditions.some(async (condition) => {
-                switch (condition.type) {
-                    case "DEVICE":
-                        return await this.executeDeviceCondition(condition)
-                    case "TIME":
-                        return this.isSatisfiedTime(condition)
-                    default:
-                        return true
-                }
-            })
-        })
+        for (const andCondition of conditions) {
+            if (!await this.isAndConditionSatisfied(andCondition)) return false
+        }
+        return true
+    }
+
+    private async isAndConditionSatisfied(andCondition: Condition) {
+        for (const condition of andCondition.orConditions) {
+            if (await this.isConditionSatisfied(condition)) return true
+        }
+        return false
+    }
+
+    private async isConditionSatisfied(condition: OrCondition) {
+        switch (condition.type) {
+            case "DEVICE":
+                return await this.executeDeviceCondition(condition)
+            case "TIME":
+                return this.isSatisfiedTime(condition)
+            default:
+                return true
+        }
     }
 
     private async executeDeviceCondition(condition: OrCondition) {
